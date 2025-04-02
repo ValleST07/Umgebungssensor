@@ -8,4 +8,4 @@
 
 ## ESP32-C3 SuperMini
 Pin Out zum Board:
-![/doc/esp32-c3-supermini_pinout.png]
+![ESP32-C3 SuperMini Pin Out](/doc/esp32-c3-supermini_pinout.png)
