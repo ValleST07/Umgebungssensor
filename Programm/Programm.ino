@@ -9,11 +9,13 @@
 Adafruit_BME280 bme;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
-const char* ssid = "valerik";
-const char* password = "valerik";
+const char ssid [10] = "valerik";
+const char password [2] = "";
 WebServer server(80);
 
 unsigned long delayTime;
+unsigned long lastSwitch = 0;
+bool showSensorData = true;
 
 void handleRoot() {
     float temperature = bme.readTemperature();
@@ -67,6 +69,7 @@ void setup() {
     Serial.println("Access Point started");
     Serial.print("IP Address: ");
     Serial.println(WiFi.softAPIP());
+    Serial.println(WiFi.softAPSSID());
     
     server.on("/", handleRoot);
     server.on("/data", handleData);
@@ -74,31 +77,43 @@ void setup() {
     Serial.println("HTTP server started");
     
     delayTime = 1000;
+    lastSwitch = millis();
 }
 
 void loop() {
     server.handleClient();
     
-    float temperature = bme.readTemperature();
-    float pressure = bme.readPressure() / 100.0F;
-    float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
-    float humidity = bme.readHumidity();
-    
+    if (millis() - lastSwitch > (showSensorData ? 30000 : 5000)) {
+        showSensorData = !showSensorData;
+        lastSwitch = millis();
+    }
+
     display.clearBuffer();
     display.setFont(u8g2_font_ncenB08_tr);
-    display.setCursor(0, 10);
-    display.print("Temp: "); display.print(temperature); display.print(" C");
-    display.setCursor(0, 20);
-    display.print("Pressure: "); display.print(pressure); display.print(" hPa");
-    display.setCursor(0, 30);
-    display.print("Alt: "); display.print(altitude); display.print(" m");
-    display.setCursor(0, 40);
-    display.print("Humidity: "); display.print(humidity); display.print(" %");
-    display.setCursor(0, 50);
-    display.print("(c)by VS&ET");
-    display.setCursor(0, 60);
-    display.print(WiFi.softAPIP());
-    display.sendBuffer();
     
+    if (showSensorData) {
+        float temperature = bme.readTemperature();
+        float pressure = bme.readPressure() / 100.0F;
+        float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
+        float humidity = bme.readHumidity();
+        
+        display.setCursor(0, 10);
+        display.print("Temp: "); display.print(temperature); display.print(" C");
+        display.setCursor(0, 20);
+        display.print("Pressure: "); display.print(pressure); display.print(" hPa");
+        display.setCursor(0, 30);
+        display.print("Alt: "); display.print(altitude); display.print(" m");
+        display.setCursor(0, 40);
+        display.print("Humidity: "); display.print(humidity); display.print(" %");
+        display.setCursor(0, 50);
+        display.print("(c)by VS&ET");
+    } else {
+        display.setCursor(0, 20);
+        display.print("SSID: "); display.print(WiFi.softAPSSID());
+        display.setCursor(0, 40);
+        display.print("IP: "); display.print(WiFi.softAPIP());
+    }
+    
+    display.sendBuffer();
     delay(delayTime);
 }
