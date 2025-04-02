@@ -9,8 +9,8 @@
 Adafruit_BME280 bme;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
-const char* ssid = "HTL-IoT";
-const char* password = "Internet0fThings!";
+const char* ssid = "valerik";
+const char* password = "";
 WebServer server(80);
 
 unsigned long delayTime;
@@ -44,15 +44,11 @@ void setup() {
         while (1) delay(10);
     }
     
-    WiFi.begin(ssid, password);
-    Serial.print("Connecting to WiFi");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.print(".");
-    }
-    Serial.println("Connected!");
+    WiFi.softAP(ssid, password);
+    WiFi.softAPConfig(IPAddress(1,1,1,1), IPAddress(1,1,1,1), IPAddress(255,255,255,0));
+    Serial.println("Access Point started");
     Serial.print("IP Address: ");
-    Serial.println(WiFi.localIP());
+    Serial.println(WiFi.softAPIP());
     
     server.on("/", handleRoot);
     server.begin();
@@ -82,7 +78,7 @@ void loop() {
     display.setCursor(0, 50);
     display.print("(c)by VS&ET");
     display.setCursor(0, 60);
-    dispay.print(WiFi.localIP());
+    display.print(WiFi.softAPIP());
     display.sendBuffer();
     
     delay(delayTime);
