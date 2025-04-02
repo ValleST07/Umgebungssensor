@@ -9,8 +9,8 @@
 Adafruit_BME280 bme;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
-const char* ssid = "valerik";
-const char* password = "valerik";
+const char ssid [10] = "valerik";
+const char password [2] = "";
 WebServer server(80);
 
 unsigned long delayTime;
@@ -67,6 +67,7 @@ void setup() {
     Serial.println("Access Point started");
     Serial.print("IP Address: ");
     Serial.println(WiFi.softAPIP());
+    Serial.println(WiFi.softAPSSID());
     
     server.on("/", handleRoot);
     server.on("/data", handleData);
@@ -97,7 +98,7 @@ void loop() {
     display.setCursor(0, 50);
     display.print("(c)by VS&ET");
     display.setCursor(0, 60);
-    display.print(WiFi.softAPIP());
+    display.print(WiFi.softAPSSID()); display.print(WiFi.softAPIP());
     display.sendBuffer();
     
     delay(delayTime);
