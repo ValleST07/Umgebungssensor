@@ -4,6 +4,7 @@
 #include <U8g2lib.h>
 #include <WiFi.h>
 #include <WebServer.h>
+#include <Update.h>
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BME280 bme;
@@ -36,12 +37,16 @@ void handleRoot() {
     html += "<p><strong>H&ouml;he:</strong> <span id='alt'>" + String(altitude) + "</span> m</p>";
     html += "<p><strong>Luftfeuchtigkeit:</strong> <span id='hum'>" + String(humidity) + "</span> %</p>";
     html += "</div>";
+    html += "<h2>Firmware Update</h2>";
+    html += "<form method='POST' action='/update' enctype='multipart/form-data'>";
+    html += "<input type='file' name='update'>";
+    html += "<input type='submit' value='Update'>";
+    html += "</form>";
     html += "<script>setInterval(()=>{fetch('/data').then(res=>res.json()).then(data=>{document.getElementById('temp').innerText=data.temp;document.getElementById('press').innerText=data.press;document.getElementById('alt').innerText=data.alt;document.getElementById('hum').innerText=data.hum;});},2000);</script>";
     html += "</body></html>";
     
     server.send(200, "text/html", html);
 }
-
 void handleData() {
     String json = "{";
     json += "\"temp\":" + String(bme.readTemperature()) + ",";
@@ -50,6 +55,29 @@ void handleData() {
     json += "\"hum\":" + String(bme.readHumidity());
     json += "}";
     server.send(200, "application/json", json);
+}
+void handleUpdate() {
+    HTTPUpload& upload = server.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+        Serial.printf("Update: %s\n", upload.filename.c_str());
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+            Serial.printf("Update Begin Error\n");
+        }
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+            Serial.printf("Update Write Error\n");
+        }
+    } else if (upload.status == UPLOAD_FILE_END) {
+        if (Update.end(true)) {
+            Serial.printf("Update Success\n");
+        } else {
+            Serial.printf("Update Failed\n");
+        }
+    }
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    delay(1000);
+    ESP.restart();
 }
 
 void setup() {
@@ -73,6 +101,7 @@ void setup() {
     
     server.on("/", handleRoot);
     server.on("/data", handleData);
+    server.on("/update", HTTP_POST, [](){ server.send(200, "text/plain", "OK"); }, handleUpdate);
     server.begin();
     Serial.println("HTTP server started");
     
@@ -105,13 +134,15 @@ void loop() {
         display.print("Alt: "); display.print(altitude); display.print(" m");
         display.setCursor(0, 40);
         display.print("Humidity: "); display.print(humidity); display.print(" %");
-        display.setCursor(0, 50);
+        display.setCursor(0, 60);
         display.print("(c)by VS&ET");
     } else {
         display.setCursor(0, 20);
         display.print("SSID: "); display.print(WiFi.softAPSSID());
-        display.setCursor(0, 40);
+        display.setCursor(0, 30);
         display.print("IP: "); display.print(WiFi.softAPIP());
+        display.setCursor(0, 60);
+        display.print("(c)by VS&ET");
     }
     
     display.sendBuffer();
