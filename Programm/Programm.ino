@@ -10,7 +10,7 @@ Adafruit_BME280 bme;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 const char* ssid = "valerik";
-const char* password = "";
+const char* password = "valerik";
 WebServer server(80);
 
 unsigned long delayTime;
@@ -21,15 +21,33 @@ void handleRoot() {
     float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
     float humidity = bme.readHumidity();
     
-    String html = "<html><head><title>BME280 Sensor Data</title></head><body>";
-    html += "<h1>Sensor Daten</h1>";
-    html += "<p>Temperatur: " + String(temperature) + " &deg;C</p>";
-    html += "<p>Druck: " + String(pressure) + " hPa</p>";
-    html += "<p>H&ouml;he: " + String(altitude) + " m</p>";
-    html += "<p>Luftfeuchtigkeit: " + String(humidity) + " %</p>";
+    String html = "<html><head><title>BME280 Sensor Data</title>";
+    html += "<style>body{font-family:Arial, sans-serif;background:#f4f4f4;margin:0;padding:0;text-align:center;}";
+    html += "h1{background:#007BFF;color:#fff;padding:15px;}";
+    html += "div.container{margin:20px auto;padding:20px;width:80%;max-width:600px;background:#fff;box-shadow:0px 0px 10px rgba(0,0,0,0.1);border-radius:10px;}";
+    html += "p{font-size:18px;line-height:1.6;}";
+    html += "</style></head><body>";
+    html += "<h1>BME280 Sensor Daten</h1>";
+    html += "<div class='container'>";
+    html += "<p><strong>Temperatur:</strong> <span id='temp'>" + String(temperature) + "</span> &deg;C</p>";
+    html += "<p><strong>Druck:</strong> <span id='press'>" + String(pressure) + "</span> hPa</p>";
+    html += "<p><strong>H&ouml;he:</strong> <span id='alt'>" + String(altitude) + "</span> m</p>";
+    html += "<p><strong>Luftfeuchtigkeit:</strong> <span id='hum'>" + String(humidity) + "</span> %</p>";
+    html += "</div>";
+    html += "<script>setInterval(()=>{fetch('/data').then(res=>res.json()).then(data=>{document.getElementById('temp').innerText=data.temp;document.getElementById('press').innerText=data.press;document.getElementById('alt').innerText=data.alt;document.getElementById('hum').innerText=data.hum;});},2000);</script>";
     html += "</body></html>";
     
     server.send(200, "text/html", html);
+}
+
+void handleData() {
+    String json = "{";
+    json += "\"temp\":" + String(bme.readTemperature()) + ",";
+    json += "\"press\":" + String(bme.readPressure() / 100.0F) + ",";
+    json += "\"alt\":" + String(bme.readAltitude(SEALEVELPRESSURE_HPA)) + ",";
+    json += "\"hum\":" + String(bme.readHumidity());
+    json += "}";
+    server.send(200, "application/json", json);
 }
 
 void setup() {
@@ -51,6 +69,7 @@ void setup() {
     Serial.println(WiFi.softAPIP());
     
     server.on("/", handleRoot);
+    server.on("/data", handleData);
     server.begin();
     Serial.println("HTTP server started");
     
