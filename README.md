@@ -11,7 +11,7 @@ Wichtige PINs für das Projekt:
 - GPIO9: I²C SCK
 - GND: Ground Potential
 - 3V3: 3,3V Potential für BME280 und SH1106
-### Vorbereitung zur Programmierung (ArduinoIDE)
+### Vorbereitung zur Programmierung ([ArduinoIDE](https://www.arduino.cc/en/software/))
 - Wenn du bereits ESP32 programmiert hast, kannst du diesen Punkt überspringen!\
 Hier bitte noch den passenden Treiber herrunterladen: [CP210x USB to UART Bridge VCP Drivers](https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
 - Im Board-Manager die ESP32 Boards installieren: 'https://dl.espressif.com/dl/package_esp32_index.json'
@@ -19,4 +19,5 @@ Hier bitte noch den passenden Treiber herrunterladen: [CP210x USB to UART Bridge
 
 > [!NOTE]
 > In der IDE in der Menubar unter Tools: USB CDC on Boot auf "Enable".
+
 Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
