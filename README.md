@@ -17,6 +17,6 @@ Hier bitte noch den passenden Treiber herrunterladen: [CP210x USB to UART Bridge
 - Im Board-Manager die ESP32 Boards installieren: 'https://dl.espressif.com/dl/package_esp32_index.json'
 - Als Board zum Programmiern: ESP32C3 Dev Module
 
-> [!INFO]
+> [!NOTE]
 > In der IDE in der Menubar unter Tools: USB CDC on Boot auf "Enable".
 Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
