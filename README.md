@@ -21,3 +21,7 @@ Hier bitte noch den passenden Treiber herrunterladen: [CP210x USB to UART Bridge
 > In der IDE in der Menubar unter Tools: USB CDC on Boot auf "Enable".
 
 Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
+
+## Verdrahtung und PCB
+### Verdrahtung
+### PCB
