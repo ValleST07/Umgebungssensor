@@ -5,7 +5,7 @@
 # Umgebungssensor Projekt
 ## ESP32-C3 SuperMini
 ### Pin Out zum Board
-![ESP32-C3 SuperMini Pin Out](/doc/esp32-c3-supermini_pinout.png)
+![ESP32-C3 SuperMini Pin Out](/docs/esp32-c3-supermini_pinout.png)
 Wichtige PINs für das Projekt:
 - GPIO8: I²C SDA
 - GPIO9: I²C SCK
@@ -24,4 +24,5 @@ Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
 
 ## Verdrahtung und PCB
 ### Verdrahtung
+![Steckbrettaufbau](/docs/Steckplatine.png)
 ### PCB
