@@ -56,34 +56,90 @@ void handleRoot() {
     float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
     float humidity = bme.readHumidity();
     
-    String html = "<html><head><title>BME280 Sensor Data</title>";
-    html += "<style>body{font-family:Arial, sans-serif;background:#f4f4f4;margin:0;padding:0;text-align:center;}";
-    html += "h1{background:#007BFF;color:#fff;padding:15px;}";
-    html += "div.container{margin:20px auto;padding:20px;width:80%;max-width:600px;background:#fff;box-shadow:0px 0px 10px rgba(0,0,0,0.1);border-radius:10px;}";
-    html += "p{font-size:18px;line-height:1.6;}";
-    html += "</style></head><body>";
-    html += "<h1>BME280 Sensor Daten</h1>";
-    html += "<div class='container'>";
-    html += "<p><strong>Temperatur:</strong> <span id='temp'>" + String(temperature) + "</span> &deg;C</p>";
-    html += "<p><strong>Druck:</strong> <span id='press'>" + String(pressure) + "</span> hPa</p>";
-    html += "<p><strong>H&ouml;he:</strong> <span id='alt'>" + String(altitude) + "</span> m</p>";
-    html += "<p><strong>Luftfeuchtigkeit:</strong> <span id='hum'>" + String(humidity) + "</span> %</p>";
+    String html = "<!DOCTYPE html><html><head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+    html += "<title>BME280 Sensor</title>";
+    html += "<style>";
+    html += "body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 0; }";
+    html += ".container { max-width: 800px; margin: 0 auto; padding: 20px; }";
+    html += "header { background: #4361ee; color: white; padding: 20px 0; text-align: center; border-radius: 0 0 10px 10px; }";
+    html += ".sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }";
+    html += ".card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }";
+    html += ".card h3 { color: #4361ee; margin-top: 0; }";
+    html += ".value { font-size: 24px; font-weight: bold; margin: 10px 0; }";
+    html += ".unit { color: #666; }";
+    html += "form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }";
+    html += "input[type='text'], input[type='password'], input[type='file'] { width: 100%; padding: 10px; margin: 5px 0 15px; border: 1px solid #ddd; border-radius: 4px; }";
+    html += "button { background: #4361ee; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }";
+    html += "button:hover { background: #3a56d4; }";
+    html += "@media (max-width: 600px) { .sensor-grid { grid-template-columns: 1fr; } }";
+    // NEU: GitHub-Corner CSS hinzufügen
+    html += ".github-corner { position: absolute; top: 0; right: 0; border: 0; }";
+    html += ".github-corner:hover .octo-arm { animation: octocat-wave 560ms ease-in-out; }";
+    html += "@keyframes octocat-wave { 0%,100% { transform: rotate(0); } 20%,60% { transform: rotate(-25deg); } 40%,80% { transform: rotate(10deg); } }";
+    html += "@media (max-width:500px) { .github-corner:hover .octo-arm { animation: none; } .github-corner .octo-arm { animation: octocat-wave 560ms ease-in-out; } }";
+    html += "</style></head>";
+    html += "<body><div class='container'>";
+    html += "<header><h1>BME280 Sensor</h1><p>Echtzeit-Daten</p></header>";
+    
+    
+    
+    
+    // GitHub Corner (rechte obere Ecke)
+    html += "<a href='https://github.com/ValleST07/Umgebungssensor' class='github-corner' target='_blank' aria-label='View source on GitHub'>";
+    html += "<svg width='80' height='80' viewBox='0 0 250 250' style='fill:#151513; color:#fff;'>";
+    html += "<path d='M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z'></path>";
+    html += "<path d='M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2' fill='currentColor' style='transform-origin: 130px 106px;' class='octo-arm'></path>";
+    html += "<path d='M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z' fill='currentColor' class='octo-body'></path>";
+    html += "</svg>";
+    html += "</a>";
+
+    // Sensordaten-Karten
+    html += "<div class='sensor-grid'>";
+    html += "<div class='card'><h3>Temperatur</h3><div class='value' id='temp'>" + String(temperature, 1) + "</div><div class='unit'>°C</div></div>";
+    html += "<div class='card'><h3>Luftfeuchtigkeit</h3><div class='value' id='hum'>" + String(humidity, 1) + "</div><div class='unit'>%</div></div>";
+    html += "<div class='card'><h3>Druck</h3><div class='value' id='press'>" + String(pressure, 1) + "</div><div class='unit'>hPa</div></div>";
+    html += "<div class='card'><h3>Höhe</h3><div class='value' id='alt'>" + String(altitude, 1) + "</div><div class='unit'>m</div></div>";
     html += "</div>";
-    html += "<h2>Firmware Update</h2>";
-    html += "<form method='POST' action='/update' enctype='multipart/form-data'>";
-    html += "<input type='file' name='update'>";
-    html += "<input type='submit' value='Update'>";
-    html += "</form>";
-    // Form for Wi-Fi configuration
-    html += "<h2>Wi-Fi Configuration</h2>";
+    
+    // WLAN-Konfiguration
     html += "<form method='POST' action='/config'>";
-    html += "<label for='ssid'>SSID:</label><br><input type='text' name='ssid' value='" + WLANSSID + "'><br><br>";
-    html += "<label for='password'>Password:</label><br><input type='password' name='password' value='" + WLANPassword + "'><br><br>";
-    html += "<input type='submit' value='Update Wi-Fi'>";
+    html += "<h2>WLAN-Konfiguration</h2>";
+    html += "<label for='ssid'>SSID:</label>";
+    html += "<input type='text' name='ssid' value='" + WLANSSID + "' placeholder='WLAN-Name'>";
+    html += "<label for='password'>Passwort:</label>";
+    html += "<input type='password' name='password' value='" + WLANPassword + "' placeholder='WLAN-Passwort'>";
+    html += "<button type='submit'>Einstellungen speichern</button>";
+    html += "<p style='font-size: 12px; color: #666;'>Leer lassen für AP-Modus</p>";
     html += "</form>";
-    html += "<br>Config Leer: AP-Mode</br>";
-    html += "<script>setInterval(()=>{fetch('/data').then(res=>res.json()).then(data=>{document.getElementById('temp').innerText=data.temp;document.getElementById('press').innerText=data.press;document.getElementById('alt').innerText=data.alt;document.getElementById('hum').innerText=data.hum;});},2000);</script>";
-    html += "</body></html>";
+    
+    // Firmware-Update
+    html += "<form method='POST' action='/update' enctype='multipart/form-data'>";
+    html += "<h2>Firmware-Update</h2>";
+    html += "<input type='file' name='update'>";
+    html += "<button type='submit'>Hochladen & Installieren</button>";
+    html += "</form>";
+    
+    // JavaScript für Live-Updates
+    html += "<script>";
+    html += "setInterval(() => {";
+    html += "fetch('/data').then(r => r.json()).then(d => {";
+    html += "document.getElementById('temp').innerText = d.temp.toFixed(1);";
+    html += "document.getElementById('hum').innerText = d.hum.toFixed(1);";
+    html += "document.getElementById('press').innerText = d.press.toFixed(1);";
+    html += "document.getElementById('alt').innerText = d.alt.toFixed(1);";
+    html += "});";
+    html += "}, 2000);";
+    html += "</script>";
+    
+    // Optional: GitHub-Link auch in der Fußzeile
+    html += "<footer style='text-align:center;margin-top:30px;color:#666;font-size:14px;'>";
+    html += "<a href='https://github.com/ValleST07/Umgebungssensor' target='_blank' style='color:#4361ee;text-decoration:none;'>";
+    html += "View project on GitHub";
+    html += "</a></footer>";
+
+    html += "</div></body></html>";
     
     server.send(200, "text/html", html);
 }
