@@ -26,3 +26,5 @@ Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
 ### Verdrahtung
 ![Steckbrettaufbau](/docs/Steckplatine.png)
 ### PCB
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<model-viewer alt="PCB 3D-View" src="Umgebungssensor/Umgebungssensor_PCB.step" ar environment-image="shared-assets/environments/moon_1k.hdr" poster="shared-assets/models/NeilArmstrong.webp" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
