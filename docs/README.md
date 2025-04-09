@@ -26,5 +26,5 @@ Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
 ### Verdrahtung
 ![Steckbrettaufbau](/docs/Steckplatine.png)
 ### PCB
-![2D-View: PCB](/docs/PCB_2D_View.png)
-![3D-View: PCB](/docs/PCB_3D_View.png)
+![2D-View: PCB](/docs/PCB_2D_View.png){height: 200px}
+![3D-View: PCB](/docs/PCB_3D_View.png){height: 200px}
