@@ -62,7 +62,7 @@ void handleRoot() {
     html += "<title>BME280 Sensor</title>";
     html += "<style>";
     html += "body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 0; }";
-    html += ".container { max-width: 800px; margin: 0 auto; padding: 20px; }";
+    html += ".container { max-width: 1200px; margin: 0 auto; padding: 20px; }";
     html += "header { background: #4361ee; color: white; padding: 20px 0; text-align: center; border-radius: 0 0 10px 10px; }";
     html += ".sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }";
     html += ".card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }";
@@ -293,35 +293,51 @@ void loop() {
     }
 
     display.clearBuffer();
+display.setFont(u8g2_font_ncenB08_tr);
+
+if (showSensorData) {
+    float temperature = bme.readTemperature();
+    float pressure = bme.readPressure() / 100.0F;
+    float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
+    float humidity = bme.readHumidity();
+
+    display.setCursor(10, 10);
+    display.print("Temp: "); display.print(temperature, 1); display.print(" °C");
+
+    display.setCursor(10, 22);
+    display.print("Pressure: "); display.print(pressure, 1); display.print(" hPa");
+
+    display.setCursor(10, 34);
+    display.print("Altitude: "); display.print(altitude, 1); display.print(" m");
+
+    display.setCursor(10, 46);
+    display.print("Humidity: "); display.print(humidity, 1); display.print(" %");
+
+    display.setFont(u8g2_font_5x7_tr);  // Kleine Schrift für Fußzeile
+    display.setCursor(40, 62);
+    display.print("(c) VS&ET");
+
+} else {
     display.setFont(u8g2_font_ncenB08_tr);
     
-    if (showSensorData) {
-        float temperature = bme.readTemperature();
-        float pressure = bme.readPressure() / 100.0F;
-        float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
-        float humidity = bme.readHumidity();
-        
-        display.setCursor(0, 10);
-        display.print("Temp: "); display.print(temperature); display.print(" C");
-        display.setCursor(0, 20);
-        display.print("Pressure: "); display.print(pressure); display.print(" hPa");
-        display.setCursor(0, 30);
-        display.print("Alt: "); display.print(altitude); display.print(" m");
-        display.setCursor(0, 40);
-        display.print("Humidity: "); display.print(humidity); display.print(" %");
-        display.setCursor(0, 60);
-        display.print("(c)by VS&ET");
-    } else {
-        display.setCursor(0, 20);
-        display.print("SSID: "); display.print(WiFi.softAPSSID());
-        display.setCursor(0, 30);
-        display.print("IP: "); 
-        if (isAP) display.print(WiFi.softAPIP());
-        else display.print(WiFi.localIP());
-        display.setCursor(0, 60);
-        display.print("(c)by VS&ET");
-    }
-    
-    display.sendBuffer();
+    display.setCursor(30, 20);
+    if (isAP)display.print("AP-Mode");
+    else display.print("ST-Mode");
+
+    display.setCursor(10, 34);
+    if(isAP){display.print("SSID: "); display.print(WiFi.softAPSSID());}
+
+    display.setCursor(10, 46);
+    display.print("IP: "); 
+    if (isAP) display.print(WiFi.softAPIP());
+    else display.print(WiFi.localIP());
+
+    display.setFont(u8g2_font_5x7_tr);
+    display.setCursor(40, 62);
+    display.print("(c) VS&ET");
+}
+
+display.sendBuffer();
+
     delay(delayTime);
 }
