@@ -5,18 +5,50 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Update.h>
+#include <EEPROM.h>
 
+#define EEPROM_SIZE 128
+#define EEPROM_SSID_ADDR 0
+#define EEPROM_PASS_ADDR 64
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BME280 bme;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 const char ssid [10] = "valerik";
 const char password [2] = "";
+String WLANSSID = "";
+String WLANPassword = "";
 WebServer server(80);
+
+bool isAP = true;
 
 unsigned long delayTime;
 unsigned long lastSwitch = 0;
 bool showSensorData = true;
+
+void saveWiFiCredentials(const String& ssid, const String& pass) {
+  EEPROM.begin(EEPROM_SIZE);
+  for (int i = 0; i < 32; ++i) {
+    EEPROM.write(EEPROM_SSID_ADDR + i, i < ssid.length() ? ssid[i] : 0);
+    EEPROM.write(EEPROM_PASS_ADDR + i, i < pass.length() ? pass[i] : 0);
+  }
+  EEPROM.commit();
+  EEPROM.end();
+}
+
+void loadWiFiCredentials(String& ssid, String& pass) {
+  EEPROM.begin(EEPROM_SIZE);
+  char ssidBuff[33], passBuff[33];
+  for (int i = 0; i < 32; ++i) {
+    ssidBuff[i] = EEPROM.read(EEPROM_SSID_ADDR + i);
+    passBuff[i] = EEPROM.read(EEPROM_PASS_ADDR + i);
+  }
+  ssidBuff[32] = 0;
+  passBuff[32] = 0;
+  ssid = String(ssidBuff);
+  pass = String(passBuff);
+  EEPROM.end();
+}
 
 void handleRoot() {
     float temperature = bme.readTemperature();
@@ -42,10 +74,63 @@ void handleRoot() {
     html += "<input type='file' name='update'>";
     html += "<input type='submit' value='Update'>";
     html += "</form>";
+    // Form for Wi-Fi configuration
+    html += "<h2>Wi-Fi Configuration</h2>";
+    html += "<form method='POST' action='/config'>";
+    html += "<label for='ssid'>SSID:</label><br><input type='text' name='ssid' value='" + WLANSSID + "'><br><br>";
+    html += "<label for='password'>Password:</label><br><input type='password' name='password' value='" + WLANPassword + "'><br><br>";
+    html += "<input type='submit' value='Update Wi-Fi'>";
+    html += "</form>";
+    html += "<br>Config Leer: AP-Mode</br>";
     html += "<script>setInterval(()=>{fetch('/data').then(res=>res.json()).then(data=>{document.getElementById('temp').innerText=data.temp;document.getElementById('press').innerText=data.press;document.getElementById('alt').innerText=data.alt;document.getElementById('hum').innerText=data.hum;});},2000);</script>";
     html += "</body></html>";
     
     server.send(200, "text/html", html);
+}
+void handleConfig() {
+    if (server.method() == HTTP_POST) {
+        WLANSSID = server.arg("ssid");
+        WLANPassword = server.arg("password");
+        Serial.println("Neues WLAN:");
+        Serial.println(WLANSSID);
+        Serial.println(WLANPassword);
+
+        saveWiFiCredentials(WLANSSID, WLANPassword);
+        // Stoppe Webserver, bevor WiFi-Modus geändert wird
+        server.stop();
+
+        // Wechsel vom Access Point zum Station-Modus
+        WiFi.softAPdisconnect(true);
+        WiFi.mode(WIFI_STA);
+
+        WiFi.begin(WLANSSID.c_str(), WLANPassword.c_str());
+        Serial.println("Verbinde mit neuem WLAN...");
+
+        unsigned long startAttemptTime = millis();
+        while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 30000) {
+            delay(500);
+            Serial.print(".");
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("\n✅ Verbindung erfolgreich!");
+            Serial.print("IP: ");
+            Serial.println(WiFi.localIP());
+            isAP=false;
+        } else {
+            Serial.println("\n❌ Verbindung fehlgeschlagen.");
+            // Optional: wieder Access Point starten
+            WiFi.mode(WIFI_AP);
+            WiFi.softAP(ssid, password);
+            WiFi.softAPConfig(IPAddress(1,1,1,1), IPAddress(1,1,1,1), IPAddress(255,255,255,0));
+            isAP=true;
+        }
+
+        // Server neu starten nach Moduswechsel
+        server_init();
+    } else {
+        server.send(405, "text/plain", "Method Not Allowed");
+    }
 }
 void handleData() {
     String json = "{";
@@ -79,7 +164,15 @@ void handleUpdate() {
     delay(1000);
     ESP.restart();
 }
-
+void server_init()
+{
+  server.on("/", handleRoot);
+  server.on("/data", handleData);
+  server.on("/update", HTTP_POST, [](){ server.send(200, "text/plain", "OK"); }, handleUpdate);
+  server.on("/config", HTTP_POST, handleConfig); // Handle the Wi-Fi configuration form submission
+  server.begin();
+  Serial.println("HTTP server started");
+}
 void setup() {
     Serial.begin(9600);
     while(!Serial);
@@ -91,20 +184,46 @@ void setup() {
         Serial.println("Could not find a valid BME280 sensor, check wiring!");
         while (1) delay(10);
     }
-    
-    WiFi.softAP(ssid, password);
-    WiFi.softAPConfig(IPAddress(1,1,1,1), IPAddress(1,1,1,1), IPAddress(255,255,255,0));
-    Serial.println("Access Point started");
-    Serial.print("IP Address: ");
-    Serial.println(WiFi.softAPIP());
-    Serial.println(WiFi.softAPSSID());
-    
-    server.on("/", handleRoot);
-    server.on("/data", handleData);
-    server.on("/update", HTTP_POST, [](){ server.send(200, "text/plain", "OK"); }, handleUpdate);
-    server.begin();
-    Serial.println("HTTP server started");
-    
+
+    // Lade gespeicherte SSID & Passwort
+    loadWiFiCredentials(WLANSSID, WLANPassword);
+    Serial.println("Geladene WLAN-Daten:");
+    Serial.println(WLANSSID);
+    Serial.println(WLANPassword);
+
+    if (WLANSSID.length() > 0) {
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(WLANSSID.c_str(), WLANPassword.c_str());
+        Serial.println("Versuche gespeicherte WLAN-Verbindung...");
+
+        unsigned long startAttemptTime = millis();
+        while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+            delay(500);
+            Serial.print(".");
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("\n✅ Verbunden mit gespeichertem WLAN");
+            Serial.print("IP: ");
+            Serial.println(WiFi.localIP());
+            isAP = false;
+        }
+    }
+
+    // Falls nicht verbunden → Access Point starten
+    if (WiFi.status() != WL_CONNECTED) {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(ssid, password);
+        WiFi.softAPConfig(IPAddress(1, 1, 1, 1), IPAddress(1, 1, 1, 1), IPAddress(255, 255, 255, 0));
+        Serial.println("\nAccess Point gestartet");
+        Serial.print("IP: ");
+        Serial.println(WiFi.softAPIP());
+        Serial.println(WiFi.softAPSSID());
+        isAP = true;
+    }
+
+    server_init();
+
     delayTime = 1000;
     lastSwitch = millis();
 }
@@ -140,7 +259,9 @@ void loop() {
         display.setCursor(0, 20);
         display.print("SSID: "); display.print(WiFi.softAPSSID());
         display.setCursor(0, 30);
-        display.print("IP: "); display.print(WiFi.softAPIP());
+        display.print("IP: "); 
+        if (isAP) display.print(WiFi.softAPIP());
+        else display.print(WiFi.localIP());
         display.setCursor(0, 60);
         display.print("(c)by VS&ET");
     }
