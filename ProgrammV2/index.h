@@ -152,9 +152,13 @@ const char* MAIN_page = R"=====(
         </div>
 
         <div class="chart-container">
-            <h2>Sensorverlauf</h2>
-            <canvas id="sensorChart"></canvas>
-        </div>
+    <h2>Sensorverlauf</h2>
+    <div id="chart-unavailable" style="display: none; color: red; font-weight: bold;">
+        Diagramm nicht verfügbar. Bitte stellen Sie eine Internetverbindung her, um es anzuzeigen.
+    </div>
+    <canvas id="sensorChart"></canvas>
+</div>
+
 
         <form method="POST" action="/config">
             <h2>WLAN-Konfiguration</h2>
@@ -191,7 +195,11 @@ const char* MAIN_page = R"=====(
         }, 2000);
     </script>
     <script>
-        // Chart.js Initialisierung
+    // Prüfen ob Chart.js geladen ist
+    if (typeof Chart === 'undefined') {
+        document.getElementById('sensorChart').style.display = 'none';
+        document.getElementById('chart-unavailable').style.display = 'block';
+    } else {
         const ctx = document.getElementById('sensorChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',
@@ -270,7 +278,6 @@ const char* MAIN_page = R"=====(
             }
         });
 
-        // Datenhistorie
         const maxDataPoints = 20;
         const timeLabels = [];
         const tempData = [];
@@ -278,24 +285,19 @@ const char* MAIN_page = R"=====(
         const pressData = [];
 
         function updateChart(time, temp, hum, press) {
-            // Labels aktualisieren
             timeLabels.push(time);
-            if (timeLabels.length > maxDataPoints) {
-                timeLabels.shift();
-            }
-            
-            // Daten aktualisieren
+            if (timeLabels.length > maxDataPoints) timeLabels.shift();
+
             tempData.push(temp);
             humData.push(hum);
             pressData.push(press);
-            
+
             if (tempData.length > maxDataPoints) {
                 tempData.shift();
                 humData.shift();
                 pressData.shift();
             }
-            
-            // Chart aktualisieren
+
             chart.data.labels = timeLabels;
             chart.data.datasets[0].data = tempData;
             chart.data.datasets[1].data = humData;
@@ -303,23 +305,24 @@ const char* MAIN_page = R"=====(
             chart.update();
         }
 
-        // Daten abrufen und aktualisieren
         setInterval(() => {
             fetch('/data')
                 .then(r => r.json())
                 .then(d => {
                     const now = new Date();
-                    const timeString = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
-                    
+                    const timeString = now.toLocaleTimeString();
+
                     document.getElementById('temp').innerText = d.temp.toFixed(1);
                     document.getElementById('hum').innerText = d.hum.toFixed(1);
                     document.getElementById('press').innerText = d.press.toFixed(1);
                     document.getElementById('alt').innerText = d.alt.toFixed(1);
-                    
+
                     updateChart(timeString, d.temp, d.hum, d.press);
                 });
         }, 2000);
-    </script>
+    }
+</script>
+
 </body>
 </html>
 )=====";
