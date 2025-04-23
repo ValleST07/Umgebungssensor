@@ -178,7 +178,18 @@ const char* MAIN_page = R"=====(
             </a>
         </footer>
     </div>
-
+     <script>
+        setInterval(() => {
+            fetch('/data')
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('temp').innerText = d.temp.toFixed(1);
+                    document.getElementById('hum').innerText = d.hum.toFixed(1);
+                    document.getElementById('press').innerText = d.press.toFixed(1);
+                    document.getElementById('alt').innerText = d.press.toFixed(1);
+                });
+        }, 2000);
+    </script>
     <script>
         // Chart.js Initialisierung
         const ctx = document.getElementById('sensorChart').getContext('2d');
