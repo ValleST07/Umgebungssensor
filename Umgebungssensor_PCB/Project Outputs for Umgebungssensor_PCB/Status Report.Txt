@@ -1,0 +1,22 @@
+Output: Gerber X2 Files
+Type  : GerberX2
+From  : Variant [[No Variations]] of Project [Umgebungssensor_PCB.PrjPcb]
+   Generated File[Umgebungssensor_PCB_Copper_Signal_Top.gbr]
+   Generated File[Umgebungssensor_PCB_Copper_Signal_Bot.gbr]
+   Generated File[Umgebungssensor_PCB_Legend_Top.gbr]
+   Generated File[Umgebungssensor_PCB_Legend_Bot.gbr]
+   Generated File[Umgebungssensor_PCB_Soldermask_Top.gbr]
+   Generated File[Umgebungssensor_PCB_Soldermask_Bot.gbr]
+   Generated File[Umgebungssensor_PCB_Paste_Top.gbr]
+   Generated File[Umgebungssensor_PCB_Paste_Bot.gbr]
+   Generated File[Umgebungssensor_PCB_Profile.gbr]
+   Generated File[Umgebungssensor_PCB_NPTH_Drill.gbr]
+   Generated File[Umgebungssensor_PCB_PTH_Drill.gbr]
+   Generated File[Umgebungssensor_PCB.EXTREP]
+   Generated File[Umgebungssensor_PCB.REP]
+
+
+Files Generated   : 13
+Documents Printed : 0
+
+Finished Output Generation At 09:08:19 On 25.04.2025

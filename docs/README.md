@@ -34,7 +34,8 @@ Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
 
 ## Gehäuse
 In Autodesk Inventor wurde ein simples und kompaktes Gehäusedesign vorgenommen.
-
+![3D-Design: Komplett](/docs/3D-Design_komplett.png)
+![3D-Design: Halbschnitt](/docs/3D-Design_halbschnitt.png)
 
 ## Website
 ### Funktionen
