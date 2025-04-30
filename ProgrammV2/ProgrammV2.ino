@@ -57,16 +57,6 @@ void loadWiFiCredentials(String& ssid, String& pass) {
 }
 
 void handleRoot() {
-  /*float temperature = bme.readTemperature();
-  float pressure = bme.readPressure() / 100.0F;
-  float altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
-  float humidity = bme.readHumidity();
-  
-  html.replace(%Temp%, temperature);
-  html.replace(%Pressure%, pressure);
-  html.replace(%Altitude%, altitude);
-  html.replace(%Humidity%, humidity);*/
-  //html.replace("%CHART_JS%", CHART_JS);
   server.send_P(200, "text/html", html.c_str());
 
 }
@@ -217,7 +207,7 @@ void setup() {
 
 void loop() {
   server.handleClient();
-
+  //Display ab jetzt
   if (millis() - lastSwitch > (showSensorData ? 30000 : 5000)) {
     showSensorData = !showSensorData;
     lastSwitch = millis();

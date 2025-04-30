@@ -33,6 +33,11 @@ Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
 ![3D-View: PCB](/docs/PCB_3D_View.png)
 
 ## Website
+### Funktionen
+- Auswählbarer Internetmodus (Acces Point oder Standalone)
+- OTA Update
+- Graphische Aufbereitung mit Chart (nur im Standalone Mode)
+- Display (Daten und Internet Einstellungen)
 ![Website](/docs/Website1.png)
 ![Website](/docs/Website2.png)
 ![Website](/docs/Website3.png)
