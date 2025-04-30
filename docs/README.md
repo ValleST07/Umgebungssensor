@@ -32,6 +32,10 @@ Somit sollten alle Vorbereitung zur Programmierung getroffen worden sein.
 ![2D-View: PCB](/docs/PCB_2D_View.png)
 ![3D-View: PCB](/docs/PCB_3D_View.png)
 
+## Gehäuse
+In Autodesk Inventor wurde ein simples und kompaktes Gehäusedesign vorgenommen.
+
+
 ## Website
 ### Funktionen
 - Auswählbarer Internetmodus (Acces Point oder Standalone)
