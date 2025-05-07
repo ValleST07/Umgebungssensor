@@ -49,3 +49,7 @@ In Autodesk Inventor wurde ein simples und kompaktes Gehäusedesign vorgenommen.
 
 ## Fertig
 ![Echt](/docs/Echt.jpg)
+
+## Arbeitsteilung
+Hardware & Gehäuse: @erik-toth \
+Software: @ValleST07
